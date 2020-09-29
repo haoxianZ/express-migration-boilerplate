@@ -1,12 +1,12 @@
 const UsersService = {
     getAllUsers(knex) {
-      return knex.select('*').from('blogful_users')
+      return knex.select('*').from('users')
     },
   
     insertUser(knex, newUser) {
       return knex
         .insert(newUser)
-        .into('blogful_users')
+        .into('users')
         .returning('*')
         .then(rows => {
           return rows[0]
@@ -15,20 +15,20 @@ const UsersService = {
   
     getById(knex, id) {
       return knex
-        .from('blogful_users')
+        .from('users')
         .select('*')
         .where('id', id)
         .first()
     },
   
     deleteUser(knex, id) {
-      return knex('blogful_users')
+      return knex('users')
         .where({ id })
         .delete()
     },
   
     updateUser(knex, id, newUserFields) {
-      return knex('blogful_users')
+      return knex('users')
         .where({ id })
         .update(newUserFields)
     },

@@ -8,10 +8,8 @@ const jsonParser = express.json()
 
 const serializeUser = user =>({
     id: user.id,
-    fullname: xss(user.fullname),
     username:xss(user.username),
-    nickname: xss(user.nickname),
-    date_created: user.date_created
+    email: xss(user.email)
 })
 
 usersRouter.route('/').get((req,res,next)=>{
@@ -20,8 +18,8 @@ usersRouter.route('/').get((req,res,next)=>{
     .then(users=>{res.json(users.map(serializeUser))})
     .catch(next)
 }).post(jsonParser,(req,res,next)=>{
-    const {fullname, username, nickname, password} = req.body
-    const newUser = { fullname, username}
+    const {username, email} = req.body
+    const newUser = { username }
 
     for(const [key,value] of Object.entries(newUser)){
         if(value == null){
@@ -30,8 +28,7 @@ usersRouter.route('/').get((req,res,next)=>{
             })
         }
     }
-    newUser.nickname = nickname;
-    newUser.password = password;
+    newUser.email = email
     UsersService.insertUser(req.app.get('db'), newUser)
     .then(user=>{
         res.status(201)
@@ -60,12 +57,12 @@ usersRouter.route('/:user_id').all((req,res,next)=>{
         res.status(204).end()
     }).catch(next)
 }).patch(jsonParser, (req,res,next)=>{
-    const { fullname, username, password, nickname } = req.body
-    const userToUpdate = { fullname, username, password, nickname }
+    const { username, email} = req.body
+    const userToUpdate = { username, email }
     const numberOfValues = Object.values(userToUpdate).filter(Boolean).length
     if(numberOfValues ===0){
         return res.status(400).json({
-            error:{message:'Request must contain something'}
+            error:{message:'Request must contain username or email'}
         })
     }
     UsersService.updateUser(req.app.get('db'),req.params.user_id,userToUpdate)
